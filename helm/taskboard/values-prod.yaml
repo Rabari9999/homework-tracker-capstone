@@ -1,0 +1,11 @@
+frontend:
+  image: ghcr.io/Rabari9999/session21-frontend
+backend:
+  image: ghcr.io/Rabari9999/session21-backend
+replicaCount: 2
+ingress:
+  enabled: true
+  className: traefik
+  host: ""
+hpa:
+  enabled: true
