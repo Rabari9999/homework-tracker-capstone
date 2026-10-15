@@ -1,0 +1,9 @@
+Captured: 2026-10-10T01:57:21.315940+00:00
+$ set -e; docker compose ps; curl -fsS http://localhost:8000/ready; curl -fsS http://localhost:3000/api/tasks; docker compose exec -T postgres pg_isready -U taskboard -d taskboard
+NAME                          IMAGE                                                COMMAND                  SERVICE    CREATED          STATUS          PORTS
+session21-python-backend-1    docker.io/library/session21-python-backend:latest    "sh -c alembic upgra…"   backend    21 seconds ago   Up 15 seconds   127.0.0.1:8000->8000/tcp
+session21-python-frontend-1   docker.io/library/session21-python-frontend:latest   "nginx -g daemon off;"   frontend   21 seconds ago   Up 3 seconds    127.0.0.1:3000->8080/tcp
+session21-python-postgres-1   docker.io/library/postgres:16-alpine                 "postgres"               postgres   21 seconds ago   Up 19 seconds   127.0.0.1:5432->5432/tcp
+{"status":"READY"}[{"title":"Final manual assignment check","description":"Created through the real frontend and stored in PostgreSQL.","priority":"LOW","status":"IN_PROGRESS","assignee":"Krish","id":7,"created_at":"2026-10-10T01:53:52.553327Z"},{"title":"Final local homework check","description":"Created through the real frontend and stored in PostgreSQL.","priority":"LOW","status":"IN_PROGRESS","assignee":"Krish","id":6,"created_at":"2026-10-10T01:46:13.274790Z"},{"title":"Session 21 homework verification","description":"Created through the real frontend and stored in PostgreSQL.","priority":"LOW","status":"IN_PROGRESS","assignee":"Krish","id":4,"created_at":"2026-10-10T00:24:28.237754Z"},{"title":"Session 21 browser verification","description":"Created through the real frontend and stored in PostgreSQL.","priority":"LOW","status":"IN_PROGRESS","assignee":"Krish","id":2,"created_at":"2026-10-10T00:12:48.816582Z"}]/var/run/postgresql:5432 - accepting connections
+
+Exit status: 0
