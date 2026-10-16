@@ -179,6 +179,7 @@ jobs:
               done
           kubectl create namespace argocd
           kubectl apply --server-side -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.5/manifests/core-install.yaml
+          kubectl -n argocd rollout status deployment/argocd-redis --timeout=180s
           kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=180s
           kubectl -n argocd rollout status deployment/argocd-repo-server --timeout=180s
           kubectl apply -f gitops/project.yaml
