@@ -178,15 +178,21 @@ jobs:
                 kind load docker-image "$image" --name chart-testing
               done
           kubectl create namespace argocd
+          # Free cluster memory and CPU for Argo CD GitOps controller on single-node Kind
+          kubectl -n session21-monitoring scale deployment/session21-prometheus-server --replicas=0 || true
+          kubectl -n session21-monitoring scale deployment/session21-grafana --replicas=0 || true
           kubectl apply --server-side -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.5/manifests/core-install.yaml
           kubectl -n argocd rollout status deployment/argocd-redis --timeout=180s
-          kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=180s
           kubectl -n argocd rollout status deployment/argocd-repo-server --timeout=180s
+          kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=180s
+          kubectl -n argocd rollout restart statefulset/argocd-application-controller
+          kubectl -n argocd rollout status statefulset/argocd-application-controller --timeout=180s
           kubectl apply -f gitops/project.yaml
           # Isolate this exercise from the Helm release tested above.
           sed -e 's/namespace: session21$/namespace: session21-gitops/' \
             -e 's/valueFiles: \[values-gitops.yaml\]/valueFiles: [values-gitops.yaml, values-ci.yaml]/' \
             gitops/application.yaml | kubectl apply -f -
+          kubectl -n argocd annotate application session21 argocd.argoproj.io/refresh=hard --overwrite || true
           kubectl -n argocd wait application/session21 --for=jsonpath='{.status.sync.status}'=Synced --timeout=300s
           kubectl -n argocd wait application/session21 --for=jsonpath='{.status.health.status}'=Healthy --timeout=180s
           kubectl -n session21-gitops scale deployment/homework-frontend --replicas=1
