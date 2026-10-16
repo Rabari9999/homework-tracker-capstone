@@ -1,8 +1,8 @@
 # Submission
 
-Project: [Homework Tracker capstone](https://github.com/Rabari9999/devops-homework-tracker)
+Project: [Homework Tracker capstone](https://github.com/Rabari9999/homework-tracker-capstone)
 
-[README](../../README.md) · [CI/CD](https://github.com/Rabari9999/devops-homework-tracker/actions) · [Requirements](requirements.md)
+[README](../../README.md) · [CI/CD](https://github.com/Rabari9999/homework-tracker-capstone/actions) · [Requirements](requirements.md)
 
 The course notice specifies **16 October 2026, 11:59 PM**, one submission through the [official form](https://forms.gle/XWAP1vAumDJgAPM1A), using the official SST email. The form has not been submitted.
 

@@ -153,8 +153,8 @@ Launch the complete stack (Frontend, Backend, Database) with a single command:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/Rabari9999/devops-homework-tracker.git
-cd devops-homework-tracker
+git clone https://github.com/Rabari9999/homework-tracker-capstone.git
+cd homework-tracker-capstone
 
 # 2. Start services with auto-build and healthcheck verification
 docker compose up -d --build --wait

@@ -59,7 +59,7 @@ cd ..
 
 The [GitHub Actions workflow](../.github/workflows/ci-cd.yml) runs API/migration tests, frontend builds, Bandit, pip-audit, npm audit, Trivy secret and image scans. Failed checks stop publication. Successful images are tagged with the source commit and deployed with Helm into a disposable Kubernetes cluster. Browser tests, HTTP Ingress, HPA load, monitoring and GitOps reconciliation are checked there too.
 
-[Pipeline runs](https://github.com/Rabari9999/devops-homework-tracker/actions) · [Release downloads](https://github.com/Rabari9999/devops-homework-tracker/releases)
+[Pipeline runs](https://github.com/Rabari9999/homework-tracker-capstone/actions) · [Release downloads](https://github.com/Rabari9999/homework-tracker-capstone/releases)
 
 Images are published to `ghcr.io/rabari9999/homework-tracker-backend` and `ghcr.io/rabari9999/homework-tracker-frontend`. Both packages allow anonymous pulls. The release also includes an archive of the scanned images for offline replay.
 

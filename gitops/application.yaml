@@ -6,7 +6,7 @@ metadata:
 spec:
   project: session21
   source:
-    repoURL: https://github.com/Rabari9999/devops-homework-tracker.git
+    repoURL: https://github.com/Rabari9999/homework-tracker-capstone.git
     targetRevision: main
     path: helm/taskboard
     helm:
