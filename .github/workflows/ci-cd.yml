@@ -98,6 +98,13 @@ jobs:
         run: |
           docker push "$BACKEND"
           docker push "$FRONTEND"
+          GITOPS_TAG=$(awk '/tag:/ {print $2; exit}' helm/taskboard/values-gitops.yaml)
+          if [ -n "$GITOPS_TAG" ] && [ "$GITOPS_TAG" != "${{ github.sha }}" ]; then
+            docker tag "$BACKEND" "ghcr.io/${{ github.repository_owner }}/homework-tracker-backend:${GITOPS_TAG}"
+            docker tag "$FRONTEND" "ghcr.io/${{ github.repository_owner }}/homework-tracker-frontend:${GITOPS_TAG}"
+            docker push "ghcr.io/${{ github.repository_owner }}/homework-tracker-backend:${GITOPS_TAG}"
+            docker push "ghcr.io/${{ github.repository_owner }}/homework-tracker-frontend:${GITOPS_TAG}"
+          fi
       - name: Export deployable images
         run: docker save "$BACKEND" "$FRONTEND" | gzip > /tmp/homework-tracker-images.tar.gz
       - name: Save deployable images

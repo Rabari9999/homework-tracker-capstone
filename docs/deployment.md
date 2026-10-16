@@ -24,7 +24,7 @@ Follow the [cluster connection steps](../terraform/README.md#connect-to-k3s-for-
 For optional offline replay, download the release archive and import it on the K3s node. It contains Linux/AMD64 images for the Azure VM:
 
 ```bash
-curl -fLO https://github.com/Rabari9999/homework-tracker-capstone/releases/download/v1.0.0/homework-tracker-images.tar.gz
+curl -fLO https://github.com/Rabari9999/devops-homework-tracker/releases/download/v1.0.0/homework-tracker-images.tar.gz
 scp -i "$SSH_KEY" homework-tracker-images.tar.gz student@"$VM_IP":/tmp/
 ssh -i "$SSH_KEY" student@"$VM_IP" \
   'sudo k3s ctr -n k8s.io images import /tmp/homework-tracker-images.tar.gz'
