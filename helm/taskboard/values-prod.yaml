@@ -1,7 +1,7 @@
 frontend:
-  image: ghcr.io/Rabari9999/session21-frontend
+  image: ghcr.io/rabari9999/session21-frontend
 backend:
-  image: ghcr.io/Rabari9999/session21-backend
+  image: ghcr.io/rabari9999/session21-backend
 replicaCount: 2
 ingress:
   enabled: true

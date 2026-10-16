@@ -25,11 +25,14 @@ jobs:
       run:
         shell: bash
         working-directory: .
-    env:
-      BACKEND: ghcr.io/${{ github.repository_owner }}/homework-tracker-backend:${{ github.sha }}
-      FRONTEND: ghcr.io/${{ github.repository_owner }}/homework-tracker-frontend:${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
+      - name: Set lower-case registry environment
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "OWNER_LC=${OWNER}" >> "$GITHUB_ENV"
+          echo "BACKEND=ghcr.io/${OWNER}/homework-tracker-backend:${{ github.sha }}" >> "$GITHUB_ENV"
+          echo "FRONTEND=ghcr.io/${OWNER}/homework-tracker-frontend:${{ github.sha }}" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -100,10 +103,10 @@ jobs:
           docker push "$FRONTEND"
           GITOPS_TAG=$(awk '/tag:/ {print $2; exit}' helm/taskboard/values-gitops.yaml)
           if [ -n "$GITOPS_TAG" ] && [ "$GITOPS_TAG" != "${{ github.sha }}" ]; then
-            docker tag "$BACKEND" "ghcr.io/${{ github.repository_owner }}/homework-tracker-backend:${GITOPS_TAG}"
-            docker tag "$FRONTEND" "ghcr.io/${{ github.repository_owner }}/homework-tracker-frontend:${GITOPS_TAG}"
-            docker push "ghcr.io/${{ github.repository_owner }}/homework-tracker-backend:${GITOPS_TAG}"
-            docker push "ghcr.io/${{ github.repository_owner }}/homework-tracker-frontend:${GITOPS_TAG}"
+            docker tag "$BACKEND" "ghcr.io/${OWNER_LC}/homework-tracker-backend:${GITOPS_TAG}"
+            docker tag "$FRONTEND" "ghcr.io/${OWNER_LC}/homework-tracker-frontend:${GITOPS_TAG}"
+            docker push "ghcr.io/${OWNER_LC}/homework-tracker-backend:${GITOPS_TAG}"
+            docker push "ghcr.io/${OWNER_LC}/homework-tracker-frontend:${GITOPS_TAG}"
           fi
       - name: Export deployable images
         run: docker save "$BACKEND" "$FRONTEND" | gzip > /tmp/homework-tracker-images.tar.gz
@@ -129,7 +132,7 @@ jobs:
           helm lint ./helm/taskboard
           kind load docker-image "$BACKEND" "$FRONTEND" --name chart-testing
           helm upgrade --install homework ./helm/taskboard -n session21 --create-namespace \
-            --set backend.image=ghcr.io/${{ github.repository_owner }}/homework-tracker-backend --set frontend.image=ghcr.io/${{ github.repository_owner }}/homework-tracker-frontend \
+            --set backend.image="ghcr.io/${OWNER_LC}/homework-tracker-backend" --set frontend.image="ghcr.io/${OWNER_LC}/homework-tracker-frontend" \
             --set backend.tag="${{ github.sha }}" --set frontend.tag="${{ github.sha }}" \
             --set ingress.className=traefik --set ingress.host='' --wait --timeout 180s
           kubectl -n session21 get pods,svc

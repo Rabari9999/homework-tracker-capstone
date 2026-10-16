@@ -61,7 +61,7 @@ The [GitHub Actions workflow](../.github/workflows/ci-cd.yml) runs API/migration
 
 [Pipeline runs](https://github.com/Rabari9999/devops-homework-tracker/actions) · [Release downloads](https://github.com/Rabari9999/devops-homework-tracker/releases)
 
-Images are published to `ghcr.io/Rabari9999/homework-tracker-backend` and `ghcr.io/Rabari9999/homework-tracker-frontend`. Both packages allow anonymous pulls. The release also includes an archive of the scanned images for offline replay.
+Images are published to `ghcr.io/rabari9999/homework-tracker-backend` and `ghcr.io/rabari9999/homework-tracker-frontend`. Both packages allow anonymous pulls. The release also includes an archive of the scanned images for offline replay.
 
 ## API checks
 
