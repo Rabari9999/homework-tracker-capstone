@@ -1,9 +1,9 @@
 frontend:
   image: ghcr.io/rabari9999/homework-tracker-frontend
-  tag: 2b74cb7f4da3cbb2dccc8faaab52b23c68f46f98
+  tag: 2191f3f674ee22de31ec8aaa6f0fc3d52ef3fba3
 backend:
   image: ghcr.io/rabari9999/homework-tracker-backend
-  tag: 2b74cb7f4da3cbb2dccc8faaab52b23c68f46f98
+  tag: 2191f3f674ee22de31ec8aaa6f0fc3d52ef3fba3
 replicaCount: 2
 postgres:
   host: postgres

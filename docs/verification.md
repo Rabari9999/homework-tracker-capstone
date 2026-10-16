@@ -2,7 +2,7 @@
 
 Terminal images use a macOS-style presentation frame. [Original captures and command records](../screenshots/terminal/) are retained.
 
-[Successful standalone pipeline](https://github.com/Rabari9999/homework-tracker-capstone/actions/runs/38812142701), application image SHA `2b74cb7f4da3cbb2dccc8faaab52b23c68f46f98`. The chart defaults promote this release. Later commits contain documentation and evidence.
+[Successful standalone pipeline](https://github.com/Rabari9999/devops-homework-tracker/actions/runs/38939105562), application image SHA `2191f3f674ee22de31ec8aaa6f0fc3d52ef3fba3`. The chart defaults promote this release. Later commits contain documentation and evidence.
 
 ![Successful pipeline](../screenshots/terminal/github-actions.png)
 
