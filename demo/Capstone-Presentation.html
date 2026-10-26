@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homework Tracker — DevOps Capstone Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a1a;
+    --surface: #12122a;
+    --card: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --text: #e8e8f0;
+    --text-dim: #8888a8;
+    --accent: #6366f1;
+    --accent-light: #818cf8;
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --slide-w: 1280px;
+    --slide-h: 720px;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ---------- slide container ---------- */
+  .deck { position: relative; width: 100vw; height: 100vh; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 72px;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+  .slide.active { display: flex; opacity: 1; }
+
+  /* ---------- progress bar ---------- */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--cyan));
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  /* ---------- slide counter ---------- */
+  #counter {
+    position: fixed; bottom: 20px; right: 32px;
+    font-size: 0.8rem; color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    z-index: 100;
+  }
+
+  /* ---------- typography ---------- */
+  h1 { font-size: 3rem; font-weight: 800; line-height: 1.1; }
+  h2 { font-size: 2.1rem; font-weight: 700; margin-bottom: 24px; }
+  h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: 16px; color: var(--accent-light); }
+  p, li { font-size: 1.15rem; line-height: 1.7; color: var(--text); }
+  ul { list-style: none; }
+  ul li { padding-left: 24px; position: relative; margin-bottom: 8px; }
+  ul li::before {
+    content: '→';
+    position: absolute; left: 0;
+    color: var(--accent-light);
+    font-weight: 600;
+  }
+
+  .subtitle { font-size: 1.3rem; color: var(--text-dim); font-weight: 400; margin-top: 12px; }
+  .badge {
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-purple { background: rgba(99,102,241,0.2); color: var(--accent-light); }
+  .badge-green  { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-cyan   { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .badge-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .badge-pink   { background: rgba(236,72,153,0.15); color: var(--pink); }
+
+  /* ---------- grid layouts ---------- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; width: 100%; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; width: 100%; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .card h3 { font-size: 1.15rem; margin-bottom: 8px; }
+  .card p, .card li { font-size: 0.95rem; }
+
+  /* ---------- screenshot images ---------- */
+  .screenshot {
+    max-width: 100%; max-height: 380px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    object-fit: contain;
+  }
+
+  .caption {
+    font-size: 0.85rem; color: var(--text-dim);
+    margin-top: 8px; text-align: center;
+  }
+
+  /* ---------- title slide special ---------- */
+  .title-slide {
+    background: radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.15), transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(6,182,212,0.1), transparent 50%),
+                var(--bg);
+  }
+  .title-slide h1 {
+    background: linear-gradient(135deg, #818cf8, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 3.5rem;
+  }
+  .emoji-large { font-size: 4rem; margin-bottom: 16px; }
+
+  /* ---------- tech table ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  th {
+    text-align: left; padding: 10px 14px;
+    background: rgba(99,102,241,0.1);
+    color: var(--accent-light);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ---------- pipeline flow ---------- */
+  .pipeline-flow {
+    display: flex; align-items: center; gap: 6px;
+    flex-wrap: wrap; justify-content: center;
+    margin: 20px 0;
+  }
+  .pipeline-step {
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 600;
+    white-space: nowrap;
+  }
+  .pipeline-arrow { color: var(--text-dim); font-size: 1.2rem; }
+
+  /* ---------- end slide ---------- */
+  .end-slide {
+    background: radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.2), transparent 70%),
+                var(--bg);
+  }
+
+  /* ---------- print / PDF ---------- */
+  @media print {
+    body { overflow: visible; }
+    .slide {
+      display: flex !important; opacity: 1 !important;
+      position: relative;
+      page-break-after: always;
+      height: 100vh; width: 100%;
+      break-inside: avoid;
+    }
+    #progress, #counter { display: none; }
+  }
+
+  .two-col-text {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 100%;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(6,182,212,0.05));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin: 16px 0;
+  }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; margin: 20px 0; }
+  .stat {
+    text-align: center; padding: 20px 12px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .stat .num {
+    font-size: 2.4rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat .label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="counter"></div>
+
+<div class="deck">
+
+<!-- ==================== SLIDE 1: Title ==================== -->
+<div class="slide title-slide active">
+  <div class="emoji-large">🎓</div>
+  <h1>Homework Tracker</h1>
+  <p class="subtitle">Cloud-Native DevOps Capstone Project</p>
+  <div style="margin-top: 32px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+    <span class="badge badge-purple">Kubernetes</span>
+    <span class="badge badge-green">CI/CD</span>
+    <span class="badge badge-cyan">Terraform</span>
+    <span class="badge badge-orange">GitOps</span>
+    <span class="badge badge-pink">DevSecOps</span>
+  </div>
+  <p style="margin-top: 40px; color: var(--text-dim); font-size: 1rem;">
+    <strong style="color: var(--text);">Krish Rabari</strong> &nbsp;·&nbsp; DevOps Heroes Advanced Curriculum
+  </p>
+</div>
+
+<!-- ==================== SLIDE 2: Agenda ==================== -->
+<div class="slide">
+  <h2>📋 Agenda</h2>
+  <div class="grid-2">
+    <div>
+      <ul>
+        <li>Project Overview & Motivation</li>
+        <li>System Architecture</li>
+        <li>Technology Stack</li>
+        <li>CI/CD & DevSecOps Pipeline</li>
+        <li>Kubernetes & Helm Deployment</li>
+      </ul>
+    </div>
+    <div>
+      <ul>
+        <li>GitOps with Argo CD</li>
+        <li>Infrastructure as Code (Terraform)</li>
+        <li>Observability & Autoscaling</li>
+        <li>Security Governance</li>
+        <li>Live Demo & Q&A</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 3: Project Overview ==================== -->
+<div class="slide">
+  <h2>📌 Project Overview</h2>
+  <div class="highlight-box">
+    <p style="font-size: 1.2rem; text-align: center;">
+      An <strong>enterprise-grade, cloud-native</strong> application to track, schedule, and manage
+      course assignments — built to demonstrate <strong>full-lifecycle DevOps engineering</strong>.
+    </p>
+  </div>
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="num">3</div>
+      <div class="label">Microservices</div>
+    </div>
+    <div class="stat">
+      <div class="num">10</div>
+      <div class="label">DevOps Milestones</div>
+    </div>
+    <div class="stat">
+      <div class="num">6</div>
+      <div class="label">Security Gates</div>
+    </div>
+    <div class="stat">
+      <div class="num">100%</div>
+      <div class="label">IaC Managed</div>
+    </div>
+  </div>
+  <p style="text-align: center; color: var(--text-dim); margin-top: 16px;">
+    React 18 Frontend · FastAPI Backend · PostgreSQL 16 Database
+  </p>
+</div>
+
+<!-- ==================== SLIDE 4: Architecture ==================== -->
+<div class="slide">
+  <h2>🏛️ System Architecture</h2>
+  <div class="grid-3">
+    <div class="card">
+      <h3>🖥️ Frontend Tier</h3>
+      <ul>
+        <li>React 18 + Vite SPA</li>
+        <li>Nginx Alpine serving</li>
+        <li>2 replicas (load balanced)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>⚡ Backend API Tier</h3>
+      <ul>
+        <li>FastAPI (Python 3.12)</li>
+        <li>Async REST endpoints</li>
+        <li>HPA: 2-5 replicas</li>
+        <li>Non-root container (UID 10001)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🗄️ Data Persistence</h3>
+      <ul>
+        <li>PostgreSQL 16</li>
+        <li>SQLAlchemy ORM</li>
+        <li>Alembic migrations</li>
+        <li>Persistent Volume Claims</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top: 24px; text-align: center;">
+    <div class="pipeline-flow">
+      <span class="pipeline-step" style="background: rgba(99,102,241,0.15); color: var(--accent-light);">Client Browser</span>
+      <span class="pipeline-arrow">→</span>
+      <span class="pipeline-step" style="background: rgba(6,182,212,0.15); color: var(--cyan);">Ingress (Traefik)</span>
+      <span class="pipeline-arrow">→</span>
+      <span class="pipeline-step" style="background: rgba(34,197,94,0.15); color: var(--green);">Frontend Service</span>
+      <span class="pipeline-arrow">→</span>
+      <span class="pipeline-step" style="background: rgba(245,158,11,0.15); color: var(--orange);">Backend Service</span>
+      <span class="pipeline-arrow">→</span>
+      <span class="pipeline-step" style="background: rgba(236,72,153,0.15); color: var(--pink);">PostgreSQL</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 5: Tech Stack ==================== -->
+<div class="slide">
+  <h2>🛠️ Technology Stack</h2>
+  <table>
+    <thead>
+      <tr><th>Domain</th><th>Technology</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Frontend</td><td>React 18, Vite, Nginx</td><td>Modern responsive SPA dashboard</td></tr>
+      <tr><td>Backend API</td><td>Python 3.12, FastAPI</td><td>Asynchronous RESTful API</td></tr>
+      <tr><td>Database</td><td>PostgreSQL 16, Alembic</td><td>Relational storage, migrations</td></tr>
+      <tr><td>Containers</td><td>Docker, Compose v2</td><td>Multi-stage, non-root builds</td></tr>
+      <tr><td>Orchestration</td><td>K3s, Kind, Kubernetes</td><td>Self-healing, service discovery</td></tr>
+      <tr><td>Packaging</td><td>Helm 3</td><td>Templated manifests, rollbacks</td></tr>
+      <tr><td>CI/CD</td><td>GitHub Actions</td><td>Automated pipeline, artifact publishing</td></tr>
+      <tr><td>Security</td><td>Bandit, Trivy, pip-audit</td><td>SAST, SCA, container CVE scanning</td></tr>
+      <tr><td>GitOps</td><td>Argo CD</td><td>Declarative continuous reconciliation</td></tr>
+      <tr><td>IaC</td><td>Terraform (AzureRM)</td><td>Cloud provisioning & teardown</td></tr>
+      <tr><td>Observability</td><td>Prometheus, Grafana</td><td>Metrics, dashboards, alerting</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 6: CI/CD Pipeline ==================== -->
+<div class="slide">
+  <h2>🚀 CI/CD & DevSecOps Pipeline</h2>
+  <div class="pipeline-flow" style="margin-bottom: 28px;">
+    <span class="pipeline-step" style="background: rgba(99,102,241,0.2); color: var(--accent-light);">Git Push</span>
+    <span class="pipeline-arrow">→</span>
+    <span class="pipeline-step" style="background: rgba(34,197,94,0.15); color: var(--green);">Unit Tests</span>
+    <span class="pipeline-arrow">→</span>
+    <span class="pipeline-step" style="background: rgba(245,158,11,0.15); color: var(--orange);">SAST</span>
+    <span class="pipeline-arrow">→</span>
+    <span class="pipeline-step" style="background: rgba(245,158,11,0.15); color: var(--orange);">SCA</span>
+    <span class="pipeline-arrow">→</span>
+    <span class="pipeline-step" style="background: rgba(245,158,11,0.15); color: var(--orange);">Secret Scan</span>
+    <span class="pipeline-arrow">→</span>
+    <span class="pipeline-step" style="background: rgba(6,182,212,0.15); color: var(--cyan);">Docker Build</span>
+    <span class="pipeline-arrow">→</span>
+    <span class="pipeline-step" style="background: rgba(236,72,153,0.15); color: var(--pink);">Trivy Scan</span>
+    <span class="pipeline-arrow">→</span>
+    <span class="pipeline-step" style="background: rgba(34,197,94,0.2); color: var(--green);">GHCR Push</span>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <h3>🧪 Continuous Integration</h3>
+      <ul>
+        <li>11 Pytest unit & API tests</li>
+        <li>Bandit SAST (Medium/High severity)</li>
+        <li>pip-audit dependency analysis</li>
+        <li>Trivy filesystem secret scanning</li>
+        <li>Multi-stage Docker image build</li>
+        <li>Container image CVE scanning</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>📦 Continuous Delivery</h3>
+      <ul>
+        <li>Publish to GitHub Container Registry</li>
+        <li>Disposable Kind cluster validation</li>
+        <li>Helm chart lint & test deploy</li>
+        <li>Automated HPA load testing</li>
+        <li>Argo CD GitOps sync verification</li>
+        <li>Zero critical/high CVE gate policy</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 7: Tests Evidence ==================== -->
+<div class="slide">
+  <h2>🧪 Testing & Quality Evidence</h2>
+  <div class="grid-2">
+    <div style="text-align: center;">
+      <img src="pytest.png" alt="Pytest results" class="screenshot" style="max-height: 320px;">
+      <p class="caption">Pytest — All 11 tests passing</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="compose-ps.png" alt="Docker Compose" class="screenshot" style="max-height: 320px;">
+      <p class="caption">Docker Compose — All services healthy</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 8: Kubernetes & Helm ==================== -->
+<div class="slide">
+  <h2>☸️ Kubernetes & Helm Deployment</h2>
+  <div class="grid-2">
+    <div>
+      <div class="card" style="margin-bottom: 20px;">
+        <h3>Helm Chart Features</h3>
+        <ul>
+          <li>Fully parameterized values</li>
+          <li>Configurable replicas & resources</li>
+          <li>Dynamic PVC storage provisioning</li>
+          <li>HPA (CPU ≥ 50%, 2-5 replicas)</li>
+          <li>Startup, readiness, liveness probes</li>
+          <li>Traefik Ingress routing</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Cluster Environments</h3>
+        <ul>
+          <li><strong>Kind</strong> — CI validation cluster</li>
+          <li><strong>K3s on Azure</strong> — Production cloud</li>
+        </ul>
+      </div>
+    </div>
+    <div style="text-align: center;">
+      <img src="kubernetes-pods.png" alt="Kubernetes Pods" class="screenshot" style="max-height: 260px;">
+      <p class="caption">Running Kubernetes Pods</p>
+      <img src="helm.png" alt="Helm Release" class="screenshot" style="max-height: 260px; margin-top: 12px;">
+      <p class="caption">Helm release verification</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 9: HPA & Autoscaling ==================== -->
+<div class="slide">
+  <h2>📈 Horizontal Pod Autoscaling</h2>
+  <div style="text-align: center; margin-bottom: 24px;">
+    <img src="cloud-hpa-load.png" alt="HPA Autoscaling" class="screenshot" style="max-height: 380px;">
+    <p class="caption">CPU-based autoscaling under load on Azure K3s</p>
+  </div>
+  <div class="grid-3">
+    <div class="card" style="text-align: center;">
+      <h3>Metric</h3>
+      <p>CPU Utilization ≥ 50%</p>
+    </div>
+    <div class="card" style="text-align: center;">
+      <h3>Replica Range</h3>
+      <p>Min: 2 → Max: 5</p>
+    </div>
+    <div class="card" style="text-align: center;">
+      <h3>Stabilization</h3>
+      <p>30-second cooldown window</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 10: GitOps ==================== -->
+<div class="slide">
+  <h2>🔄 GitOps with Argo CD</h2>
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <h3>Declarative Delivery</h3>
+        <ul>
+          <li>Git as single source of truth</li>
+          <li>Automated self-healing</li>
+          <li>Zero configuration drift</li>
+          <li>Continuous reconciliation loop</li>
+          <li>AppProject resource isolation</li>
+          <li>Verified in CI pipeline</li>
+        </ul>
+      </div>
+      <div class="highlight-box" style="margin-top: 16px;">
+        <p style="font-size: 1rem; text-align: center;">
+          Any manual change to the cluster is <strong style="color: var(--pink);">automatically reverted</strong>
+          to match the declared Git state.
+        </p>
+      </div>
+    </div>
+    <div style="text-align: center;">
+      <img src="gitops.png" alt="GitOps" class="screenshot" style="max-height: 420px;">
+      <p class="caption">Argo CD reconciliation status</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 11: Terraform ==================== -->
+<div class="slide">
+  <h2>☁️ Infrastructure as Code — Terraform</h2>
+  <div class="grid-2">
+    <div style="text-align: center;">
+      <img src="terraform-plan.png" alt="Terraform Plan" class="screenshot" style="max-height: 220px;">
+      <p class="caption">Terraform plan output</p>
+      <img src="terraform-apply.png" alt="Terraform Apply" class="screenshot" style="max-height: 220px; margin-top: 12px;">
+      <p class="caption">Terraform apply — resources provisioned</p>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Azure Resources Provisioned</h3>
+        <ul>
+          <li>Resource Group (rg-homework-tracker)</li>
+          <li>Virtual Network (10.21.0.0/16)</li>
+          <li>Subnet (10.21.1.0/24)</li>
+          <li>Network Security Group (SSH + HTTP/S)</li>
+          <li>Ubuntu 24.04 LTS VM with K3s</li>
+          <li>Cloud-init: K3s, Helm, Prometheus, Traefik</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top: 16px;">
+        <h3>Full Lifecycle</h3>
+        <ul>
+          <li><code>terraform plan</code> → Preview changes</li>
+          <li><code>terraform apply</code> → Provision</li>
+          <li><code>terraform destroy</code> → Clean teardown</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 12: Security ==================== -->
+<div class="slide">
+  <h2>🔒 DevSecOps & Security Governance</h2>
+  <p style="text-align: center; margin-bottom: 24px; color: var(--text-dim);">
+    Zero tolerance for high/critical vulnerabilities before any artifact is published.
+  </p>
+  <table>
+    <thead>
+      <tr><th>Security Domain</th><th>Tool</th><th>Policy</th><th>Action on Failure</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-orange">SAST</span></td>
+        <td>Bandit</td>
+        <td>Medium / High severity</td>
+        <td>Fails CI pipeline</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-cyan">SCA</span></td>
+        <td>pip-audit & npm audit</td>
+        <td>CVSS ≥ 7.0</td>
+        <td>Fails CI pipeline</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-pink">Secrets</span></td>
+        <td>Trivy FS Scanner</td>
+        <td>Any detected secret</td>
+        <td>Fails CI pipeline</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-purple">Containers</span></td>
+        <td>Trivy Image Scanner</td>
+        <td>HIGH / CRITICAL CVEs</td>
+        <td>Blocks GHCR publish</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-green">Runtime</span></td>
+        <td>Non-root execution</td>
+        <td>UID 10001 / non-root</td>
+        <td>Enforced in Dockerfile</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 13: Observability ==================== -->
+<div class="slide">
+  <h2>📊 Observability Stack</h2>
+  <div class="grid-2">
+    <div>
+      <div class="card" style="margin-bottom: 20px;">
+        <h3>Prometheus Metrics</h3>
+        <ul>
+          <li>CPU & memory utilization per container</li>
+          <li>HTTP request rates & latency (p50, p95, p99)</li>
+          <li>Database connection pool status</li>
+          <li>Custom /metrics endpoint</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Grafana Dashboards</h3>
+        <ul>
+          <li>Real-time cluster health visualization</li>
+          <li>Pod-level resource consumption</li>
+          <li>Alert rules for threshold breaches</li>
+          <li>Custom dashboard configurations</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Health Endpoints</h3>
+        <table style="font-size: 0.9rem;">
+          <tr><td><code>/health</code></td><td>Container liveness</td></tr>
+          <tr><td><code>/ready</code></td><td>DB readiness check</td></tr>
+          <tr><td><code>/metrics</code></td><td>Prometheus scraping</td></tr>
+        </table>
+      </div>
+      <div class="highlight-box" style="margin-top: 20px;">
+        <p style="text-align: center; font-size: 0.95rem;">
+          Kubernetes probes (startup, readiness, liveness) ensure
+          <strong style="color: var(--green);">zero-downtime deployments</strong> and
+          automatic unhealthy pod replacement.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 14: Terraform Destroy ==================== -->
+<div class="slide">
+  <h2>🧹 Clean Teardown & Cost Management</h2>
+  <div class="grid-2">
+    <div style="text-align: center;">
+      <img src="terraform-destroy.png" alt="Terraform Destroy" class="screenshot" style="max-height: 280px;">
+      <p class="caption">Terraform destroy — all resources removed</p>
+      <img src="azure-cleanup.png" alt="Azure Cleanup" class="screenshot" style="max-height: 220px; margin-top: 12px;">
+      <p class="caption">Azure portal — resource group deleted</p>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Lifecycle Management</h3>
+        <ul>
+          <li>Single-command infrastructure teardown</li>
+          <li>No orphaned Azure resources</li>
+          <li>Cost-conscious ephemeral deployments</li>
+          <li>Reproducible provision → demo → destroy cycle</li>
+        </ul>
+      </div>
+      <div class="highlight-box" style="margin-top: 16px;">
+        <p style="text-align: center; font-size: 1rem;">
+          Full cloud lifecycle verified:<br>
+          <code style="color: var(--green);">plan</code> →
+          <code style="color: var(--cyan);">apply</code> →
+          <code style="color: var(--orange);">demo</code> →
+          <code style="color: var(--pink);">destroy</code>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 15: Demo Walkthrough ==================== -->
+<div class="slide">
+  <h2>🎬 Live Demo Walkthrough</h2>
+  <p style="text-align: center; color: var(--text-dim); margin-bottom: 20px;">
+    Recorded demonstration — <code>capstone-walkthrough.mp4</code> (5 min 40 sec)
+  </p>
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Demonstration</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>00:00</td><td>Azure infrastructure provision (Terraform)</td></tr>
+      <tr><td>00:52</td><td>Kubernetes cluster & initial Helm release</td></tr>
+      <tr><td>01:37</td><td>Create assignment, verify persistence</td></tr>
+      <tr><td>01:43</td><td>Commit change & publish via CI pipeline</td></tr>
+      <tr><td>01:57</td><td>Tests, Docker Compose, API validation</td></tr>
+      <tr><td>02:34</td><td>CPU load test & HPA autoscaling</td></tr>
+      <tr><td>03:21</td><td>Broken image & service recovery</td></tr>
+      <tr><td>03:37</td><td>Prometheus & Grafana on Azure</td></tr>
+      <tr><td>04:09</td><td>Successful standalone CI pipeline</td></tr>
+      <tr><td>05:29</td><td>Updated frontend with existing data</td></tr>
+      <tr><td>05:34</td><td>Terraform destroy — cleanup</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==================== SLIDE 16: Key Achievements ==================== -->
+<div class="slide">
+  <h2>🏆 Key Achievements</h2>
+  <div class="grid-2">
+    <div>
+      <div class="card" style="margin-bottom: 16px;">
+        <h3>✅ Full DevOps Lifecycle</h3>
+        <p>End-to-end automation from code commit to production deployment with zero manual intervention.</p>
+      </div>
+      <div class="card" style="margin-bottom: 16px;">
+        <h3>✅ Security-First Approach</h3>
+        <p>6 independent security gates block any release with critical vulnerabilities.</p>
+      </div>
+      <div class="card">
+        <h3>✅ Production-Ready Infrastructure</h3>
+        <p>IaC-managed Azure environment with automated K3s bootstrap via cloud-init.</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom: 16px;">
+        <h3>✅ Self-Healing GitOps</h3>
+        <p>Argo CD continuously reconciles cluster state with zero configuration drift.</p>
+      </div>
+      <div class="card" style="margin-bottom: 16px;">
+        <h3>✅ Elastic Scaling</h3>
+        <p>HPA-driven autoscaling responds to real load, verified with automated stress tests.</p>
+      </div>
+      <div class="card">
+        <h3>✅ Complete Observability</h3>
+        <p>Prometheus metrics, Grafana dashboards, alerting rules, and structured health probes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SLIDE 17: Thank You ==================== -->
+<div class="slide end-slide">
+  <div class="emoji-large">🙏</div>
+  <h1 style="background: linear-gradient(135deg, #818cf8, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 3rem;">
+    Thank You!
+  </h1>
+  <p class="subtitle" style="margin-top: 16px;">Questions & Discussion</p>
+  <div style="margin-top: 40px; display: flex; gap: 40px; color: var(--text-dim); font-size: 1rem;">
+    <div>
+      <strong style="color: var(--text);">Krish Rabari</strong>
+    </div>
+    <div>
+      <span>GitHub: <a href="https://github.com/Rabari9999" style="color: var(--accent-light); text-decoration: none;">@Rabari9999</a></span>
+    </div>
+    <div>
+      <span>rabarikrishramjibhai2905@gmail.com</span>
+    </div>
+  </div>
+  <p style="margin-top: 32px; font-size: 0.9rem; color: var(--text-dim);">
+    Repository: <a href="https://github.com/Rabari9999/homework-tracker-capstone" style="color: var(--accent-light); text-decoration: none;">github.com/Rabari9999/homework-tracker-capstone</a>
+  </p>
+</div>
+
+</div><!-- .deck -->
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+  let current = 0;
+
+  function show(n) {
+    if (n < 0 || n >= slides.length) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    progress.style.width = ((current + 1) / slides.length * 100) + '%';
+    counter.textContent = (current + 1) + ' / ' + slides.length;
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault(); show(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault(); show(current - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault(); show(0);
+    } else if (e.key === 'End') {
+      e.preventDefault(); show(slides.length - 1);
+    }
+  });
+
+  // Touch / click navigation
+  document.addEventListener('click', function(e) {
+    if (e.clientX > window.innerWidth / 2) show(current + 1);
+    else show(current - 1);
+  });
+
+  show(0);
+})();
+</script>
+
+</body>
+</html>
